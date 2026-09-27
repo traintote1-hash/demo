@@ -22,7 +22,6 @@ if ($currentNavHost === 'demo.traintote.com') {
         return isset($navItem['key']) && $navItem['key'] !== 'forum';
     }));
 }
-
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4" aria-label="Main navigation">
@@ -33,42 +32,26 @@ if ($currentNavHost === 'demo.traintote.com') {
                 <span class="tt-demo-badge" aria-label="Demo site">DEMO</span>
             <?php endif; ?>
         </a>
-
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <?php foreach ($primaryNavItems as $navItem): ?>
                     <?php $isActive = tt_nav_is_active($navItem['key'], $currentNavPath, $currentNavHost); ?>
                     <li class="nav-item">
-                        <a
-                            class="nav-link<?= $isActive ? ' active' : '' ?>"
-                            href="<?= htmlspecialchars($navItem['href'], ENT_QUOTES, 'UTF-8') ?>"
-                            <?= $isActive ? 'aria-current="page"' : '' ?>><?= htmlspecialchars($navItem['label'], ENT_QUOTES, 'UTF-8') ?></a>
+                        <a class="nav-link<?= $isActive ? ' active' : '' ?>" href="<?= htmlspecialchars($navItem['href'], ENT_QUOTES, 'UTF-8') ?>" <?= $isActive ? 'aria-current="page"' : '' ?>><?= htmlspecialchars($navItem['label'], ENT_QUOTES, 'UTF-8') ?></a>
                     </li>
                 <?php endforeach; ?>
             </ul>
-
             <ul class="navbar-nav">
                 <li class="nav-item d-flex align-items-center px-lg-2">
-                    <label class="visually-hidden" for="tt-theme-select">Appearance</label>
+                    <label class="text-white small me-2 mb-0" for="tt-theme-select">Appearance</label>
                     <select id="tt-theme-select" class="form-select form-select-sm tt-theme-select" aria-label="Appearance">
                         <option value="system">System</option>
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
                     </select>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= htmlspecialchars(tt_nav_ops_href('/logout.php', $currentNavHost), ENT_QUOTES, 'UTF-8') ?>">Logout</a>
                 </li>
             </ul>
         </div>
