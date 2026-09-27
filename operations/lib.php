@@ -1,0 +1,240 @@
+<?php
+
+function ttOperationsRailroad(PDO $pdo, int $userId): array
+{
+    $stmt = $pdo->prepare('SELECT id, name, operations_dispatcher_enabled FROM railroads WHERE user_id = ? LIMIT 1');
+    $stmt->execute([$userId]);
+    $railroad = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$railroad) {
+        throw new RuntimeException('No railroad found.');
+    }
+    return $railroad;
+}
+
+function ttOperationsModuleDefinitions(): array
+{
+    return [
+        'fast_clock' => ['label' => 'Fast Clock', 'available' => true, 'description' => 'Model-time clock and session controls.'],
+        'dispatcher' => ['label' => 'Dispatcher', 'available' => true, 'description' => 'Live assignment overview and dispatcher notes.'],
+        'repair_queue' => ['label' => 'Repair Queue', 'available' => true, 'description' => 'Bad-order workflow and repair history.'],
+        'crew_messaging' => ['label' => 'Crew Messaging', 'available' => true, 'description' => 'Dispatcher messages shown on crew work orders.'],
+        'advanced_roles' => ['label' => 'Advanced Roles', 'available' => true, 'description' => 'Railroad-scoped access for operational roles.'],
+        'track_warrants' => ['label' => 'Track Warrants', 'available' => false, 'description' => 'Coming later.'],
+        'yardmaster' => ['label' => 'Yardmaster', 'available' => true, 'description' => 'Session-scoped yard capacity, classification plans, and inbound/outbound work.'],
+        'interchange_management' => ['label' => 'Interchange Management', 'available' => false, 'description' => 'Coming later.'],
+        'ai_job_suggestions' => ['label' => 'AI Job Suggestions', 'available' => false, 'description' => 'Coming later.'],
+    ];
+}
+
+function ttOperationsModuleStates(PDO $pdo, int $railroadId): array
+{
+    $states = array_fill_keys(array_keys(ttOperationsModuleDefinitions()), false);
+    $stmt = $pdo->prepare('SELECT module_key,enabled FROM operation_module_settings WHERE railroad_id=?');
+    $stmt->execute([$railroadId]);
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        if (array_key_exists((string)$row['module_key'], $states)) {
+            $states[(string)$row['module_key']] = (bool)$row['enabled'];
+        }
+    }
+    return $states;
+}
+
+function ttOperationsModuleEnabled(PDO $pdo, int $railroadId, string $module): bool
+{
+    if (!array_key_exists($module, ttOperationsModuleDefinitions())) {
+        return false;
+    }
+    $stmt = $pdo->prepare('SELECT enabled FROM operation_module_settings WHERE railroad_id=? AND module_key=? LIMIT 1');
+    $stmt->execute([$railroadId, $module]);
+    return (bool)$stmt->fetchColumn();
+}
+
+function ttOperationsRequireModule(PDO $pdo, int $railroadId, string $module): void
+{
+    if (!ttOperationsModuleEnabled($pdo, $railroadId, $module)) {
+        http_response_code(404);
+        $label = ttOperationsModuleDefinitions()[$module]['label'] ?? 'This Operations module';
+        throw new RuntimeException($label . ' is disabled for this railroad.');
+    }
+}
+
+function ttOperationsCsrfToken(): string
+{
+    if (!isset($_SESSION['operations_csrf']) || !is_string($_SESSION['operations_csrf'])) {
+        $_SESSION['operations_csrf'] = bin2hex(random_bytes(24));
+    }
+    return $_SESSION['operations_csrf'];
+}
+
+function ttOperationsRequireCsrf(): void
+{
+    $submitted = isset($_POST['csrf_token']) && is_string($_POST['csrf_token']) ? $_POST['csrf_token'] : '';
+    if ($submitted === '' || !hash_equals(ttOperationsCsrfToken(), $submitted)) {
+        http_response_code(403);
+        throw new RuntimeException('The form expired. Refresh the page and try again.');
+    }
+}
+
+function ttOperationsRequireRailroadOwner(PDO $pdo, int $railroadId, int $userId): void
+{
+    // The current application has no implemented delegated management-role model.
+    // Until one exists, the railroads.user_id relationship is the owner authority.
+    if (!ttOperationsIsRailroadOwner($pdo, $railroadId, $userId)) {
+        http_response_code(403);
+        throw new RuntimeException('Only the railroad owner may manage this Operations setting.');
+    }
+}
+
+function ttOperationsIsRailroadOwner(PDO $pdo, int $railroadId, int $userId): bool
+{
+    $stmt = $pdo->prepare('SELECT id FROM railroads WHERE id=? AND user_id=? LIMIT 1');
+    $stmt->execute([$railroadId, $userId]);
+    return (bool)$stmt->fetchColumn();
+}
+
+function ttDispatcherNavEnabled(PDO $pdo, int $userId): bool
+{
+    $stmt = $pdo->prepare("SELECT 1 FROM railroads r
+        LEFT JOIN operation_railroad_roles orr ON orr.railroad_id=r.id AND orr.user_id=? AND orr.role='dispatcher'
+        JOIN operating_sessions s ON s.railroad_id=r.id AND s.status='in_progress'
+        JOIN operation_module_settings dispatcher_module ON dispatcher_module.railroad_id=r.id AND dispatcher_module.module_key='dispatcher' AND dispatcher_module.enabled=1
+        LEFT JOIN operation_module_settings role_module ON role_module.railroad_id=r.id AND role_module.module_key='advanced_roles' AND role_module.enabled=1
+        WHERE (r.user_id=? OR (orr.user_id=? AND role_module.enabled=1))
+          AND COALESCE(s.dispatcher_enabled,r.operations_dispatcher_enabled)=1 LIMIT 1");
+    $stmt->execute([$userId, $userId, $userId]);
+    return (bool)$stmt->fetchColumn();
+}
+
+function ttYardmasterNavEnabled(PDO $pdo, int $userId): bool
+{
+    $stmt = $pdo->prepare("SELECT 1 FROM railroads r
+        JOIN operation_module_settings ym ON ym.railroad_id=r.id AND ym.module_key='yardmaster' AND ym.enabled=1
+        JOIN operating_sessions s ON s.railroad_id=r.id AND s.status='in_progress'
+        WHERE r.user_id=? LIMIT 1");
+    $stmt->execute([$userId]);
+    return (bool)$stmt->fetchColumn();
+}
+
+function ttAssignmentSuffix(int $sequence): string
+{
+    $suffix = '';
+    while ($sequence > 0) {
+        $sequence--;
+        $suffix = chr(65 + ($sequence % 26)) . $suffix;
+        $sequence = intdiv($sequence, 26);
+    }
+    return $suffix;
+}
+
+function ttNextScopedNumber(PDO $pdo, string $table, string $column, int $railroadId, string $prefix, int $width): string
+{
+    $allowed = [
+        'operating_sessions.session_number',
+        'prepared_cuts.cut_number'
+    ];
+    if (!in_array($table . '.' . $column, $allowed, true)) {
+        throw new InvalidArgumentException('Unsupported number sequence.');
+    }
+    $stmt = $pdo->prepare("SELECT $column FROM $table WHERE railroad_id = ? ORDER BY id DESC LIMIT 1 FOR UPDATE");
+    $stmt->execute([$railroadId]);
+    $last = (string)$stmt->fetchColumn();
+    $next = $last !== '' ? ((int)preg_replace('/\D/', '', $last) + 1) : 1;
+    return $prefix . str_pad((string)$next, $width, '0', STR_PAD_LEFT);
+}
+
+function ttJobTypes(): array
+{
+    return [
+        'local_turn' => 'Local Turn', 'point_to_point_local' => 'Point-to-Point Local',
+        'yard_job' => 'Yard Job', 'transfer' => 'Transfer', 'interchange_job' => 'Interchange Job',
+        'manifest' => 'Manifest / Through Freight', 'industry_switcher' => 'Industry Switcher',
+        'light_engine' => 'Light Engine / Hostler', 'custom' => 'Custom'
+    ];
+}
+
+function ttActiveAssignmentStatuses(): array
+{
+    return ['draft', 'ready', 'waiting', 'in_progress', 'needs_review'];
+}
+
+function ttOperationsStatusLabel(string $status, string $recordType = ''): string
+{
+    if ($status === 'in_progress') { return 'Active'; }
+    if ($recordType === 'switch_list' && $status === 'draft') { return 'Generated'; }
+    return ucwords(str_replace('_', ' ', $status));
+}
+
+function ttOperationsCrewDisplay(array $assignment): string
+{
+    $roles = [];
+    if (($name=trim((string)($assignment['engineer_name']??'')))!=='') $roles[]='Engineer: '.$name;
+    if (($name=trim((string)($assignment['conductor_name']??'')))!=='') $roles[]='Conductor / Foreman: '.$name;
+    if (($name=trim((string)($assignment['brakeman_names']??'')))!=='') $roles[]='Brakeman / Switchman: '.$name;
+    if ($roles) return implode(' · ', $roles);
+    $legacy = trim((string)($assignment['crew_name'] ?? ''));
+    return $legacy !== '' ? $legacy : 'Crew not assigned';
+}
+
+function ttOperationsCrewSummary(string $engineer, string $conductor, string $brakemen): string
+{
+    return substr(implode(', ', array_filter([$engineer,$conductor,$brakemen], static fn($value)=>$value!=='')), 0, 120);
+}
+
+function ttOperationsUnitDisplay(array $assignment): string
+{
+    $unit = trim((string)($assignment['unit_identifier'] ?? ''));
+    if ($unit !== '') return $unit;
+    $legacy = trim((string)($assignment['assignment_number'] ?? ''));
+    return $legacy !== '' ? $legacy : 'Unit pending';
+}
+
+function ttNormalizeService($value): string
+{
+    return strtolower(trim(preg_replace('/\s+/', ' ', (string)$value)));
+}
+
+function ttServiceList($value): array
+{
+    $result = [];
+    foreach (preg_split('/[\r\n,]+/', (string)$value) as $item) {
+        $item = ttNormalizeService($item);
+        if ($item !== '') { $result[$item] = true; }
+    }
+    return array_keys($result);
+}
+
+function ttIndustrySupports(array $industry, string $field, string $service): bool
+{
+    $service = ttNormalizeService($service);
+    foreach (ttServiceList($industry[$field] ?? '') as $supported) {
+        if (in_array($supported, ['all', 'any', '*', 'all / any service'], true) || $supported === $service) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function ttPhotoUrl(?string $filename): ?string
+{
+    $filename = trim((string)$filename);
+    return $filename === '' ? null : '/uploads/' . rawurlencode(basename($filename));
+}
+
+function ttReservedEquipmentIds(PDO $pdo, int $railroadId, ?int $excludeAssignmentId = null): array
+{
+    $params = [$railroadId];
+    $exclude = '';
+    if ($excludeAssignmentId !== null) { $exclude = ' AND a.id <> ?'; $params[] = $excludeAssignmentId; }
+    $sql = "SELECT equipment_id FROM operation_assignment_locomotives al JOIN operation_assignments a ON a.id=al.assignment_id WHERE a.railroad_id=? AND a.status IN ('draft','ready','waiting','in_progress','needs_review')$exclude
+            UNION SELECT equipment_id FROM operation_assignment_starting_cars ac JOIN operation_assignments a ON a.id=ac.assignment_id WHERE a.railroad_id=? AND a.status IN ('draft','ready','waiting','in_progress','needs_review')";
+    $second = [$railroadId];
+    if ($excludeAssignmentId !== null) { $sql .= ' AND a.id <> ?'; $second[] = $excludeAssignmentId; }
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(array_merge($params, $second));
+    return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
+function ttHtml($value): string
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}

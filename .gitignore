@@ -1,0 +1,32 @@
+.vscode/
+
+# Local and production configuration. Commit only the *.example.php templates.
+config/*.php
+!config/*.example.php
+
+# Runtime data and logs
+uploads/*
+!uploads/.gitignore
+!uploads/temp/
+uploads/temp/*
+!uploads/temp/.gitignore
+logs/
+*.log
+error_log
+
+# Local credentials and temporary artifacts
+.env
+.env.*
+!.env.example
+*.backup
+*.bak
+*.zip
+
+# Local-only tools and hosting test artifacts
+/bgtest/
+/dev/
+/test_curl.php
+/photo_editor/test.php
+/TrainTote_Ops_Installer_v1.zip
+/equipment/view.php.working
+photo_editor/__pycache__/

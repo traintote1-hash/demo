@@ -1,0 +1,130 @@
+/* Navigation placeholder */
+.tt-toolbar{
+display:flex;justify-content:space-between;align-items:center;
+margin-bottom:1.5rem;
+}
+.tt-page-title{font-size:2rem;font-weight:700;}
+
+/*=====================================================================
+ Sprint 001F - Navbar Standard
+ Purpose:
+ - Do not redefine the global navbar here.
+ - includes/navbar.php remains the standard source of truth.
+ - Keep this file for secondary/module navigation and toolbar helpers.
+=====================================================================*/
+
+.navbar {
+    margin-bottom: 0;
+}
+
+.tt-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.tt-page-title {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/*=====================================================================
+ Sprint 001H - Standard Navbar Gap Fix
+ Purpose:
+ - includes/navbar.php uses Bootstrap's mb-4 class.
+ - On Operations shell pages, that created a white gap above the left sidebar.
+ - Override only the global navbar spacing so the shell begins immediately
+   below the navbar, matching the list.php page feel.
+=====================================================================*/
+
+body > nav.navbar.mb-4 {
+    margin-bottom: 0 !important;
+}
+
+/* Keep the active section obvious and consistent on Ops, Wiki, and Forum. */
+body > nav.navbar .nav-link.active,
+body > nav.navbar .nav-link[aria-current="page"] {
+    color: #fff;
+    background-color: var(--tt-engine-red, #8B1E24);
+}
+
+body > nav.navbar .tt-demo-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: .45rem;
+    padding: .15rem .45rem;
+    border: 1px solid rgba(255, 255, 255, .7);
+    border-radius: 999px;
+    color: #fff;
+    background: var(--tt-engine-red, #8B1E24);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+body > nav.navbar .nav-link.active:hover,
+body > nav.navbar .nav-link.active:focus,
+body > nav.navbar .nav-link[aria-current="page"]:hover,
+body > nav.navbar .nav-link[aria-current="page"]:focus {
+    color: #fff;
+    background-color: var(--tt-engine-red-hover, #73181D);
+}
+
+:root[data-theme="dark"] .tt-sidebar.tt-module-nav {
+    background: var(--tt-surface);
+    color: var(--tt-text);
+    border-color: var(--tt-border);
+}
+
+:root[data-theme="dark"] .tt-module-nav-header h3,
+:root[data-theme="dark"] .tt-module-nav-list a {
+    color: var(--tt-text);
+    border-color: var(--tt-border);
+}
+
+:root[data-theme="dark"] .tt-module-nav-list a:hover {
+    background: #172c47;
+    color: #a9d1ff;
+}
+
+@media(min-width:992px) {
+    body > nav.navbar .nav-link {
+        border-radius: var(--tt-radius-sm, 6px);
+        padding-right: .75rem;
+        padding-left: .75rem;
+    }
+}
+
+@media(max-width:575px) {
+    body > .navbar .container-fluid {
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    body > .navbar .navbar-brand {
+        max-width: calc(100% - 64px);
+        margin-right: 0;
+        overflow-wrap: anywhere;
+        font-size: 1rem;
+        line-height: 1.15;
+        white-space: normal;
+    }
+
+    body > .navbar .navbar-toggler {
+        min-width: 48px;
+        min-height: 44px;
+    }
+
+    body > .navbar .navbar-collapse {
+        flex-basis: 100%;
+    }
+
+    body > .navbar .nav-link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+}

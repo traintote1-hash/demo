@@ -1,0 +1,551 @@
+/*
+=========================================================
+TRAIN TOTE BUILDER LISTS
+=========================================================
+*/
+
+body > nav.navbar.mb-4 {
+    margin-bottom: 0 !important;
+}
+
+.tt-list-page {
+    max-width: var(--tt-max-width, 1600px);
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.tt-equipment-list-page {
+    width: 100%;
+    max-width: none;
+    padding-right: 24px;
+    padding-left: 24px;
+}
+
+.list-layout {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.sidebar {
+    width: 292px;
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/*
+=========================================================
+PAGE HEADER
+=========================================================
+*/
+
+.tt-list-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--tt-border, #d8dee6);
+}
+
+.tt-list-title-block {
+    min-width: 0;
+}
+
+.tt-list-kicker {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--tt-text-muted, #6b7280);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.tt-list-title {
+    margin: 0;
+    color: var(--tt-text, #1f2937);
+    font-size: 1.85rem;
+    line-height: 1.1;
+}
+
+.tt-list-count {
+    margin-top: 8px;
+    color: var(--tt-text-muted, #64748b);
+}
+
+.tt-list-count strong {
+    color: var(--tt-text, #1f2937);
+}
+
+.tt-list-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.bulk-action-select {
+    min-width: 220px;
+}
+
+/*
+=========================================================
+CARDS / PANELS
+=========================================================
+*/
+
+.sidebar-card,
+.content-card {
+    background: var(--tt-surface, #fff);
+    border: 1px solid var(--tt-border, #d8dee6);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+}
+
+.sidebar-card {
+    position: sticky;
+    top: 88px;
+    max-height: calc(100vh - 112px);
+    overflow: auto;
+    padding: 18px 14px;
+}
+
+.content-card {
+    padding: 20px;
+}
+
+.sidebar-title {
+    margin: 0 0 14px;
+    color: var(--tt-text, #1f2937);
+    font-size: 1.08rem;
+    font-weight: 700;
+}
+
+/*
+=========================================================
+FILTER SECTIONS
+=========================================================
+*/
+
+.active-filters {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--tt-surface-alt, #f8fafc);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.active-filters strong {
+    color: var(--tt-text, #1f2937);
+    font-size: .86rem;
+}
+
+.filter-section {
+    margin-bottom: 14px;
+}
+
+.filter-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--tt-border, #d8dee6);
+    color: var(--tt-text, #1f2937);
+    cursor: pointer;
+    font-size: .92rem;
+    font-weight: 700;
+    user-select: none;
+}
+
+.section-header:hover {
+    color: #0d6efd;
+}
+
+.arrow {
+    width: 18px;
+    color: var(--tt-text-muted, #64748b);
+    font-size: .82rem;
+}
+
+.section-content {
+    padding-top: 10px;
+    transition: .15s;
+}
+
+.section-content.collapsed {
+    display: none;
+}
+
+.filter-scroll {
+    max-height: none;
+    overflow: visible;
+}
+
+/*
+=========================================================
+CLICKABLE FILTER ROWS
+=========================================================
+*/
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 34px;
+    padding: 7px 10px 7px 30px;
+    margin-bottom: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: .15s;
+}
+
+.form-check:hover {
+    background: #eef6ff;
+}
+
+.form-check-label {
+    color: var(--tt-text, #1f2937);
+    cursor: pointer;
+    font-size: .92rem;
+}
+
+/*
+=========================================================
+ACTIVE FILTER CHIPS
+=========================================================
+*/
+
+.filter-chip {
+    display: inline-block;
+    margin: 3px;
+    padding: 5px 12px;
+    background: #fff;
+    border: 1px solid var(--tt-border, #d8dee6);
+    border-radius: 999px;
+    color: var(--tt-text, #1f2937);
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: .15s;
+}
+
+.filter-chip:hover {
+    background: #eef6ff;
+    border-color: #bfdbfe;
+    color: #0d6efd;
+}
+
+/*
+=========================================================
+TOOLBAR
+=========================================================
+*/
+
+.top-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 46px;
+    padding: 10px 0 14px;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+}
+
+.toolbar-left,
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.top-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    flex-wrap: wrap;
+}
+.toolbar-right select {
+    width: 85px;
+}
+
+/*
+=========================================================
+TABLE
+=========================================================
+*/
+
+.table-responsive {
+    background: #fff;
+    border: 1px solid var(--tt-border, #d8dee6);
+    border-radius: 8px;
+}
+
+.equipment-table {
+    margin-bottom: 0;
+}
+
+.equipment-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #f3f6fa;
+    border-bottom: 1px solid var(--tt-border, #d8dee6);
+    box-shadow: none;
+    color: var(--tt-text, #1f2937);
+    font-size: .78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.sort-link {
+    color: var(--tt-text, #1f2937);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.sort-link:hover {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.sort-link.active {
+    color: var(--tt-engine-red, #8B1E24);
+}
+
+/*
+=========================================================
+THUMBNAILS / ROWS
+=========================================================
+*/
+
+.equipment-thumb {
+    width: 92px;
+    height: 62px;
+    background: var(--tt-surface-alt, #f8fafc);
+    border-color: var(--tt-border, #d8dee6);
+    border-radius: 6px;
+    object-fit: contain;
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: .15s;
+}
+
+.clickable-row:hover {
+    background: #eef6ff !important;
+}
+
+.equipment-table td {
+    vertical-align: middle;
+    color: var(--tt-text, #1f2937);
+    font-size: .95rem;
+}
+
+/* Photo-forward roster cards. The list remains the default, with the user's
+   preferred view retained locally by list_v2.js. */
+.equipment-card-view { display: none; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 16px; }
+.tt-equipment-list-page[data-equipment-view="card"] .equipment-list-view { display: none; }
+.tt-equipment-list-page[data-equipment-view="card"] .equipment-card-view { display: grid; }
+.equipment-card {
+    display: grid; grid-template-rows: 118px auto; overflow: hidden; cursor: pointer;
+    background: var(--tt-surface, #fff); border: 1px solid var(--tt-border, #d8dee6);
+    border-radius: 12px; box-shadow: var(--tt-shadow-sm); transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.equipment-card:hover { transform: translateY(-2px); border-color: #7da3cc; box-shadow: var(--tt-shadow); }
+.equipment-card-photo { display: grid; place-items: center; overflow: hidden; background: var(--tt-surface-alt, #f8fafc); color: var(--tt-text-muted); font-size: .85rem; }
+.equipment-card-photo img { width: 100%; height: 100%; object-fit: cover; }
+.equipment-card-body { padding: 14px; }
+.equipment-card-topline { display: flex; justify-content: space-between; align-items: center; font-size: .78rem; color: var(--tt-text-muted); }
+.equipment-card-topline input { margin-right: 4px; }
+.equipment-card h2 { margin: 12px 0 2px; color: var(--tt-text); font-size: 1.2rem; }
+.equipment-card-road { margin: 0 0 10px; color: var(--tt-text-muted); font-size: .9rem; }
+.equipment-card-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.equipment-card-badges span { padding: 3px 8px; border: 1px solid var(--tt-border); border-radius: 999px; color: var(--tt-text-muted); font-size: .75rem; font-weight: 700; }
+.equipment-card dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 14px; }
+.equipment-card dl div { min-width: 0; }
+.equipment-card dt { color: var(--tt-text-muted); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.equipment-card dd { overflow: hidden; margin: 2px 0 0; color: var(--tt-text); font-size: .85rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.status-card-view,
+.industry-card-view { display: none; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 16px; }
+.tt-status-page[data-display-view="cards"] .status-list-view,
+.tt-industries-page[data-display-view="cards"] .industry-list-view { display: none; }
+.tt-status-page[data-display-view="cards"] .status-card-view,
+.tt-industries-page[data-display-view="cards"] .industry-card-view { display: grid; }
+.equipment-card .equipment-card-note { margin: 0 0 10px; color: var(--tt-text-muted); font-size: .82rem; }
+
+:root[data-theme="dark"] .sidebar-card,
+:root[data-theme="dark"] .content-card,
+:root[data-theme="dark"] .table-responsive { background: var(--tt-surface); border-color: var(--tt-border); }
+:root[data-theme="dark"] .active-filters,
+:root[data-theme="dark"] .equipment-table thead th { background: var(--tt-surface-alt); border-color: var(--tt-border); }
+:root[data-theme="dark"] .equipment-table td,
+:root[data-theme="dark"] .equipment-table thead th,
+:root[data-theme="dark"] .sort-link { color: var(--tt-text); }
+:root[data-theme="dark"] .form-check:hover,
+:root[data-theme="dark"] .clickable-row:hover { background: #172c47 !important; }
+:root[data-theme="dark"] .filter-chip { background: #0d192a; border-color: var(--tt-border); color: var(--tt-text); }
+:root[data-theme="dark"] .equipment-table .table-light > * { --bs-table-bg: var(--tt-surface); --bs-table-color: var(--tt-text); color: var(--tt-text); }
+
+.equipment-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.equipment-table a {
+    text-decoration: none;
+}
+
+/*
+=========================================================
+BADGES
+=========================================================
+*/
+
+.badge {
+    border-radius: 999px;
+    padding: .42em .72em;
+    font-weight: 700;
+}
+
+/*
+=========================================================
+PAGINATION
+=========================================================
+*/
+
+.pagination-area {
+    margin-top: 22px;
+}
+
+.pagination-area .btn {
+    min-width: 38px;
+}
+
+/*
+=========================================================
+BUTTONS
+=========================================================
+*/
+
+.btn {
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.btn-primary {
+    background: var(--tt-engine-red, #8B1E24);
+    border-color: var(--tt-engine-red, #8B1E24);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: var(--tt-engine-red-hover, #73181D);
+    border-color: var(--tt-engine-red-hover, #73181D);
+}
+
+.btn-success {
+    background: var(--tt-signal-green, #2E8B57);
+    border-color: var(--tt-signal-green, #2E8B57);
+    font-weight: 700;
+}
+
+/*
+=========================================================
+SHOW SELECT
+=========================================================
+*/
+
+#perPage {
+    width: 80px;
+}
+
+/*
+=========================================================
+MOBILE
+=========================================================
+*/
+
+@media (max-width: 991px) {
+    .list-layout {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .sidebar-card {
+        position: relative;
+        top: auto;
+        max-height: none;
+    }
+}
+
+@media (max-width: 700px) {
+    .tt-list-page {
+        padding: 18px 12px;
+    }
+
+    .tt-equipment-list-page {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    .tt-list-header {
+        display: grid;
+    }
+
+    .tt-list-actions {
+        justify-content: flex-start;
+    }
+
+    .tt-list-actions .btn {
+        width: 100%;
+    }
+
+    .bulk-action-select {
+        width: 100%;
+    }
+
+    .top-toolbar {
+        justify-content: flex-start;
+    }
+
+    .top-pagination {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+
+/*
+=========================================================
+SCROLLBAR
+=========================================================
+*/
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+}
